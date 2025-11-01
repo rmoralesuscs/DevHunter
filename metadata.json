@@ -1,0 +1,5 @@
+{
+  "name": "Copy of AuraTest AI Dashboard",
+  "description": "A dashboard for an AI-Assisted Cross-Platform Testing Platform. Manage and analyze test runs, view video recordings and screenshots, and leverage AI agents to optimize your testing workflow.",
+  "requestFramePermissions": []
+}
