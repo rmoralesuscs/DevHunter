@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: devhunter-ingest-service
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/devhunter}
+    username: ${DATABASE_USERNAME:devhunter}
+    password: ${DATABASE_PASSWORD:devhunter}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# OpenAPI / Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+# Application Configuration
+app:
+  storage:
+    provider: ${STORAGE_PROVIDER:azure}
+    azure:
+      connection-string: ${AZURE_STORAGE_CONNECTION_STRING:}
+      container-name: ${AZURE_CONTAINER_NAME:devhunter-artifacts}
+    aws:
+      region: ${AWS_REGION:us-east-1}
+      bucket-name: ${AWS_BUCKET_NAME:devhunter-artifacts}
+      access-key-id: ${AWS_ACCESS_KEY_ID:}
+      secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+    gcs:
+      project-id: ${GCS_PROJECT_ID:}
+      bucket-name: ${GCS_BUCKET_NAME:devhunter-artifacts}
+      credentials-path: ${GCS_CREDENTIALS_PATH:}
+
+  limits:
+    default-max-bytes: 209715200  # 200MB
+    mp4-max-bytes: 524288000      # 500MB
+    mp4-enabled: ${FEATURE_FLAG_ENABLE_MP4_UPLOADS:false}
+
+  idempotency:
+    ttl-hours: 24
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    max-age: 3600
+
