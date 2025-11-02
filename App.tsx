@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-console.log('[dev] App.tsx module loaded');
+// console.log('[dev] App.tsx module loaded');
 import Dashboard from './components/Dashboard';
 import AIAgents from './components/AIAgents';
 import RunDetailModal from './components/RunDetailModal';
