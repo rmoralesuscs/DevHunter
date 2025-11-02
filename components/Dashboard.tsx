@@ -1,72 +1,53 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import type { TestRun } from '../types';
-import { Status, Platform } from '../types';
+import { Status, Platform, Browser } from '../types';
 import { MOCK_TEST_RUNS } from '../constants';
-import RunsTable from './RunsTable';
-import { db, addRunsBulk, countRunsByStatus, queryRuns } from '../services/db';
+import { WindowsIcon, AppleIcon, UbuntuIcon } from '../constants';
 
 interface DashboardProps {
   onSelectRun: (run: TestRun) => void;
 }
 
+const statusStyles = {
+  [Status.Passed]: 'bg-status-pass/20 text-status-pass',
+  [Status.Failed]: 'bg-status-fail/20 text-status-fail',
+  [Status.Running]: 'bg-status-running/20 text-status-running animate-pulse',
+  [Status.Queued]: 'bg-gray-500/20 text-gray-400',
+};
+
+const PlatformIcon: React.FC<{ platform: Platform }> = ({ platform }) => {
+    switch (platform) {
+        case Platform.Windows:
+            return <WindowsIcon className="h-5 w-5" />;
+        case Platform.MacOS:
+            return <AppleIcon className="h-5 w-5" />;
+        case Platform.Ubuntu:
+            return <UbuntuIcon className="h-5 w-5" />;
+        default:
+            return null;
+    }
+};
+
 
 const Dashboard: React.FC<DashboardProps> = ({ onSelectRun }) => {
   const [filter, setFilter] = useState<string>('');
-  const [runs, setRuns] = useState<TestRun[]>(MOCK_TEST_RUNS);
-  const [stats, setStats] = useState({ total: 0, passed: 0, failed: 0, running: 0 });
 
-  // Seed DB (first load) with mock runs if empty
-  useEffect(() => {
-    (async () => {
-      const total = await db.runs.count();
-      if (total === 0) {
-        await addRunsBulk(MOCK_TEST_RUNS);
-      }
-      // refresh
-      refreshLocalData();
-    })();
+  const stats = useMemo(() => {
+    const total = MOCK_TEST_RUNS.length;
+    const passed = MOCK_TEST_RUNS.filter(r => r.status === Status.Passed).length;
+    const failed = MOCK_TEST_RUNS.filter(r => r.status === Status.Failed).length;
+    const running = MOCK_TEST_RUNS.filter(r => r.status === Status.Running).length;
+    return { total, passed, failed, running };
   }, []);
 
-  const refreshLocalData = async () => {
-    const all = await queryRuns();
-    setRuns(all as TestRun[]);
-    const total = await countRunsByStatus();
-    const passed = await countRunsByStatus(Status.Passed);
-    const failed = await countRunsByStatus(Status.Failed);
-    const running = await countRunsByStatus(Status.Running);
-    setStats({ total, passed, failed, running });
-  };
-
-  // Search handler: local filter + when online, hit /runs?q=
-  useEffect(() => {
-    let cancelled = false;
-    const doSearch = async () => {
-      if (!filter) {
-        await refreshLocalData();
-        return;
-      }
-      // First search local DB
-      const local = await queryRuns(filter);
-      if (!cancelled) setRuns(local as TestRun[]);
-
-      // If online, also query server endpoint to refresh results
-      if (navigator.onLine) {
-        try {
-          const res = await fetch(`/runs?q=${encodeURIComponent(filter)}`);
-          if (res.ok) {
-            const remote: TestRun[] = await res.json();
-            // Merge remote into local DB for offline availability
-            await addRunsBulk(remote);
-            if (!cancelled) setRuns(remote);
-          }
-        } catch (e) {
-          // ignore network errors — we still have local results
-          console.warn('Remote runs query failed', e);
-        }
-      }
-    };
-    doSearch();
-    return () => { cancelled = true; };
+  const filteredRuns = useMemo(() => {
+    if (!filter) return MOCK_TEST_RUNS;
+    return MOCK_TEST_RUNS.filter(run =>
+      run.name.toLowerCase().includes(filter.toLowerCase()) ||
+      run.id.toLowerCase().includes(filter.toLowerCase()) ||
+      run.triggeredBy.toLowerCase().includes(filter.toLowerCase())
+    );
   }, [filter]);
 
   return (
@@ -94,20 +75,52 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectRun }) => {
       </div>
 
       {/* Test Runs List */}
-      <div className="mb-6">
-        <label htmlFor="global-search" className="sr-only">Search runs globally</label>
-        <input
-          id="global-search"
-          type="text"
-          placeholder="Search runs by name, ID, or user..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full bg-gray-900 text-white placeholder-gray-500 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          aria-label="Search runs"
-        />
+      <div className="bg-gray-800 rounded-lg border border-gray-700">
+        <div className="p-4 border-b border-gray-700">
+          <input
+            type="text"
+            placeholder="Search runs by name, ID, or user..."
+            className="w-full bg-gray-900 text-white placeholder-gray-500 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-gray-900/50 text-xs text-gray-400 uppercase">
+              <tr>
+                <th className="p-4">Status</th>
+                <th className="p-4">Test Name</th>
+                <th className="p-4">Details</th>
+                <th className="p-4">Duration</th>
+                <th className="p-4">Triggered By</th>
+                <th className="p-4">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700">
+              {filteredRuns.map(run => (
+                <tr key={run.id} className="hover:bg-gray-700/50 cursor-pointer" onClick={() => onSelectRun(run)}>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${statusStyles[run.status]}`}>
+                      {run.status}
+                    </span>
+                  </td>
+                  <td className="p-4 font-semibold text-white">{run.name}</td>
+                  <td className="p-4">
+                      <div className="flex items-center space-x-2 text-gray-400">
+                          <PlatformIcon platform={run.platform} />
+                          <span>{run.browser}</span>
+                          <span className="text-xs bg-gray-600 px-1.5 py-0.5 rounded">{run.executionMode}</span>
+                      </div>
+                  </td>
+                  <td className="p-4 text-gray-400">{run.duration}</td>
+                  <td className="p-4 text-gray-400">{run.triggeredBy}</td>
+                  <td className="p-4 text-gray-400">{new Date(run.timestamp).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <RunsTable runs={runs} onSelectRun={onSelectRun} />
     </div>
   );
 };
