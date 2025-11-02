@@ -16,7 +16,6 @@ const statusStyles = {
   [Status.Queued]: 'bg-gray-500/20 text-gray-400',
 };
 
-
 const PlatformIcon: React.FC<{ platform: Platform }> = ({ platform }) => {
     switch (platform) {
         case Platform.Windows:
