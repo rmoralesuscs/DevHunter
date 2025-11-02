@@ -1,16 +1,18 @@
-
+// File: `src/index.tsx`
+import './index.css';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+console.log('[dev] /Users/rmorales/WebStormProjects/dev-hunter-01/index.tsx loaded');
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const root = document.getElementById('root');
+if (!root) {
+  console.error('[dev] root element `#root` not found. Check `index.html` contains `<div id="root"></div>`');
+} else {
+  createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}

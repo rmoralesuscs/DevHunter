@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+console.log('[dev] App.tsx module loaded');
 import Dashboard from './components/Dashboard';
 import AIAgents from './components/AIAgents';
 import RunDetailModal from './components/RunDetailModal';
@@ -9,6 +9,7 @@ import { LogoIcon, DashboardIcon, AiIcon } from './constants';
 type View = 'dashboard' | 'ai-agents';
 
 const App: React.FC = () => {
+  console.log('[dev] App component render start');
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [selectedRun, setSelectedRun] = useState<TestRun | null>(null);
 
