@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import Dashboard from './components/Dashboard';
 import AIAgents from './components/AIAgents';
 import RunDetailModal from './components/RunDetailModal';
 import type { TestRun } from './types';
+import Sidebar from './components/Sidebar';
 import { LogoIcon, DashboardIcon, AiIcon } from './constants';
 
-type View = 'dashboard' | 'ai-agents';
+type View = 'dashboard' | 'ai-agents' | 'runs' | 'settings';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -26,46 +26,17 @@ const App: React.FC = () => {
         return <Dashboard onSelectRun={handleSelectRun} />;
       case 'ai-agents':
         return <AIAgents />;
+      case 'runs':
+        return <Dashboard onSelectRun={handleSelectRun} />; // reuse dashboard for now
       default:
         return <Dashboard onSelectRun={handleSelectRun} />;
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-200 font-sans">
+    <div className="flex h-screen bg-gray-900 text-gray-200 font-sans" data-theme="dark">
       {/* Sidebar Navigation */}
-      <nav className="w-64 bg-gray-800 border-r border-gray-700 p-5 flex flex-col justify-between">
-        <div>
-          <div className="flex items-center space-x-3 mb-10">
-            <LogoIcon className="h-10 w-10 text-brand-primary" />
-            <span className="text-2xl font-bold text-white">AuraTest AI</span>
-          </div>
-          <ul>
-            <li
-              className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                currentView === 'dashboard' ? 'bg-brand-primary/20 text-brand-primary' : 'hover:bg-gray-700'
-              }`}
-              onClick={() => setCurrentView('dashboard')}
-            >
-              <DashboardIcon className="h-6 w-6" />
-              <span className="font-semibold">Dashboard</span>
-            </li>
-            <li
-              className={`flex items-center space-x-3 p-3 mt-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                currentView === 'ai-agents' ? 'bg-brand-primary/20 text-brand-primary' : 'hover:bg-gray-700'
-              }`}
-              onClick={() => setCurrentView('ai-agents')}
-            >
-              <AiIcon className="h-6 w-6" />
-              <span className="font-semibold">AI Agents</span>
-            </li>
-          </ul>
-        </div>
-        <div className="text-center text-xs text-gray-500">
-            <p>&copy; 2024 AuraTest Inc.</p>
-            <p>Enterprise Testing Platform</p>
-        </div>
-      </nav>
+      <Sidebar currentView={currentView} onNavigate={(v) => setCurrentView(v as View)} />
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
