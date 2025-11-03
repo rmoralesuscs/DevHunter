@@ -1,27 +1,30 @@
 {
-  "name": "copy-of-auratest-ai-dashboard",
+  "name": "dev-hunter-monorepo",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "Dev Hunter - AI-Powered Test Management Platform (Monorepo)",
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "dev:backend": "cd backend && mvn spring-boot:run",
+    "build:backend": "cd backend && mvn clean install",
+    "test:backend": "cd backend && mvn test",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart backend",
+    "start": "npm run docker:up && npm run dev",
+    "install:all": "npm install && npm install --workspace=frontend",
+    "clean": "rm -rf frontend/node_modules frontend/dist backend/target"
   },
-  "dependencies": {
-    "@google/genai": "^1.28.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-markdown": "^10.1.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.0",
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.16",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
+

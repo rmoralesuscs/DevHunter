@@ -178,9 +178,9 @@
 ## 🚀 Quick Start for QA/Dev
 
 ### Start Everything:
-```bash
+ bash
 ./start.sh
-```
+ 
 
 ### Access Points:
 - **Swagger UI:** http://localhost:8080/swagger-ui.html
@@ -189,10 +189,10 @@
 - **Frontend:** http://localhost:5173 (after `npm run dev`)
 
 ### Run Tests:
-```bash
+ bash
 cd backend
 mvn test  # Runs all integration tests with Testcontainers
-```
+ 
 
 ---
 
@@ -208,19 +208,19 @@ mvn test  # Runs all integration tests with Testcontainers
 ## 🔧 Configuration
 
 ### Backend (`backend/.env`):
-```bash
+ bash
 DATABASE_URL=jdbc:postgresql://localhost:5432/devhunter
 STORAGE_PROVIDER=azure  # or aws, gcs
 AZURE_STORAGE_CONNECTION_STRING=...
 FEATURE_FLAG_ENABLE_MP4_UPLOADS=false
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-```
+ 
 
 ### Frontend (`.env.local`):
-```bash
+ bash
 VITE_GEMINI_API_KEY=your-key
 VITE_API_BASE_URL=http://localhost:8080/v1
-```
+ 
 
 ---
 

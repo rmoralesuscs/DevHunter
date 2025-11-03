@@ -1,0 +1,33 @@
+# Manual Commands to Move Frontend Files
+# Copy and paste these commands one-by-one or all at once
+
+cd /Users/rmorales/WebStormProjects/dev-hunter-01
+
+# Move source files
+mv App.tsx index.tsx index.html index.css frontend/
+
+# Move config files
+mv vite.config.ts tsconfig.json tailwind.config.js postcss.config.cjs postcss.config.js vite-env.d.ts frontend/
+
+# Move directories
+mv components services utils frontend/
+
+# Move type files
+mv types.ts constants.tsx metadata.json frontend/
+
+# Move env file
+mv .env.local frontend/ 2>/dev/null || true
+
+# Clean up
+rm -rf node_modules package-lock.json
+
+# Install dependencies
+npm install
+
+# Verify structure
+echo "Frontend files:"
+ls -la frontend/
+
+echo "Root files:"
+ls -la | grep -E "package.json|docker-compose.yml|backend"
+

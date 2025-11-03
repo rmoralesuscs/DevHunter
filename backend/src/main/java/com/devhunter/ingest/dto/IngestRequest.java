@@ -1,12 +1,3 @@
-
-        @NotBlank(message = "content_type is required")
-        private String contentType;
-
-        @NotNull(message = "size_bytes is required")
-        @Positive(message = "size_bytes must be positive")
-        private Long sizeBytes;
-    }
-}
 package com.devhunter.ingest.dto;
 
 import jakarta.validation.constraints.NotBlank;
@@ -42,3 +33,12 @@ public class IngestRequest {
         @NotBlank(message = "filename is required")
         private String filename;
 
+
+        @NotBlank(message = "content_type is required")
+        private String contentType;
+
+        @NotNull(message = "size_bytes is required")
+        @Positive(message = "size_bytes must be positive")
+        private Long sizeBytes;
+    }
+}

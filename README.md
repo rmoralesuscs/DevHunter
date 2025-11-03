@@ -4,288 +4,309 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-## 🏗️ Architecture
+## 🏗️ Monorepo Architecture
 
-This is a full-stack application with:
+This project uses a **clean monorepo structure** with completely separated frontend and backend packages:
 
-- **Frontend**: React + TypeScript + Vite with AI Studio integration
-- **Backend**: Java Spring Boot REST API with PostgreSQL
-- **Storage**: Multi-cloud support (Azure/AWS/GCS)
-- **Database**: PostgreSQL 15+ with full-text search
+```
+dev-hunter-01/                      # Root workspace
+│
+├── 📁 frontend/                    # Frontend Package
+│   ├── package.json                # Frontend dependencies
+│   ├── vite.config.ts              # Vite configuration
+│   ├── tsconfig.json               # TypeScript config
+│   ├── index.html                  # Entry HTML
+│   ├── index.tsx                   # React entry
+│   ├── App.tsx                     # Main component
+│   ├── components/                 # React components
+│   ├── services/                   # API & AI services
+│   └── utils/                      # Utilities
+│
+├── 📁 backend/                     # Backend Package
+│   ├── pom.xml                     # Maven dependencies
+│   ├── src/                        # Java source
+│   │   ├── main/                   # Application code
+│   │   └── test/                   # Tests
+│   ├── Dockerfile                  # Container image
+│   └── .env                        # Backend config
+│
+├── package.json                    # Root workspace manager
+├── docker-compose.yml              # Orchestration
+└── README.md                       # This file
+```
+
+### Why This Structure?
+
+✅ **Clear Separation** - Each package is completely independent  
+✅ **Standard Practice** - Matches industry-standard monorepo patterns  
+✅ **Easy Navigation** - Developers immediately understand the layout  
+✅ **No Conflicts** - Frontend and backend dependencies are isolated  
+✅ **Scalable** - Easy to add more packages (mobile, admin, etc.)  
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Compose (Recommended)
+### Prerequisites
+
+- **Docker Desktop** (for backend)
+- **Node.js 18+** (for frontend)
+- **Java 21** (optional, if running backend locally without Docker)
+
+### 1. Install Dependencies
 
 ```bash
-# 1. Configure environment
-cp backend/.env.example backend/.env
-# Edit backend/.env with your storage provider credentials
+# From project root - installs both frontend and backend dependencies
+npm install
+```
 
-# 2. Start all services (PostgreSQL + Backend)
+This uses npm workspaces to install frontend dependencies automatically.
+
+### 2. Start Backend (Docker)
+
+```bash
+# From project root
+npm run docker:up
+
+# Or manually
 docker-compose up -d
-
-# 3. Start frontend (separate terminal)
-npm install
-npm run dev
-
-# 4. Access applications
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8080
-# Swagger UI: http://localhost:8080/swagger-ui.html
 ```
 
-### Option 2: Local Development
+**Backend will be available at:**
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- Health: http://localhost:8080/actuator/health
 
-**Backend Setup:**
+### 3. Start Frontend
 
 ```bash
-# Start PostgreSQL
-docker run -d \
-  --name devhunter-postgres \
-  -e POSTGRES_DB=devhunter \
-  -e POSTGRES_USER=devhunter \
-  -e POSTGRES_PASSWORD=devhunter \
-  -p 5432:5432 \
-  postgres:15-alpine
+# From project root
+npm run dev
 
-# Start backend
+# Or from frontend directory
+cd frontend
+npm run dev
+```
+
+**Frontend will be available at:** http://localhost:5173
+
+### 4. Verify Connection
+
+Open http://localhost:5173 and look for:
+- 🟢 **"Backend Connected"** in the top-right corner
+
+## 📦 Package Scripts
+
+### Root Level (Monorepo Commands)
+
+```bash
+# Frontend
+npm run dev                 # Start frontend dev server
+npm run build              # Build frontend for production
+npm run dev:frontend       # Explicit frontend dev
+npm run build:frontend     # Explicit frontend build
+
+# Backend
+npm run dev:backend        # Start backend with Maven
+npm run build:backend      # Build backend with Maven
+npm run test:backend       # Run backend tests
+
+# Docker
+npm run docker:up          # Start backend services
+npm run docker:down        # Stop backend services
+npm run docker:logs        # View backend logs
+npm run docker:restart     # Restart backend container
+
+# Utilities
+npm run start              # Start everything (backend + frontend)
+npm run install:all        # Install all dependencies
+npm run clean              # Clean build artifacts
+```
+
+### Frontend Package
+
+```bash
+cd frontend
+
+npm install                # Install dependencies
+npm run dev                # Start dev server (port 5173)
+npm run build              # Build for production
+npm run preview            # Preview production build
+```
+
+### Backend Package
+
+```bash
 cd backend
-cp .env.example .env
-# Edit .env with your configuration
-mvn spring-boot:run
+
+mvn clean install          # Build with Maven
+mvn spring-boot:run        # Run locally
+mvn test                   # Run tests
 ```
 
-**Frontend Setup:**
+## 🎯 Technology Stack
 
+### Frontend (`frontend/`)
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool & dev server
+- **Tailwind CSS** - Styling
+- **Google Gemini AI** - AI features
+- **Dexie** - Local IndexedDB storage
+
+### Backend (`backend/`)
+- **Java 21** - Programming language
+- **Spring Boot 3.2** - Application framework
+- **PostgreSQL 15** - Database
+- **Flyway** - Database migrations
+- **Azure/AWS/GCS** - Multi-cloud storage
+- **OpenAPI/Swagger** - API documentation
+
+## 🔌 API Integration
+
+The frontend automatically connects to the backend API at `http://localhost:8080/v1`.
+
+### Configuration
+
+**Frontend** (`frontend/.env.local`):
 ```bash
-# Install dependencies
-npm install
+VITE_API_BASE_URL=http://localhost:8080/v1
+VITE_GEMINI_API_KEY=your-gemini-key
+```
 
-# Set Gemini API key
-echo "VITE_GEMINI_API_KEY=your-api-key" > .env.local
-
-# Run frontend
-npm run dev
+**Backend** (`backend/.env`):
+```bash
+DATABASE_URL=jdbc:postgresql://postgres:5432/devhunter
+STORAGE_PROVIDER=azure
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 
 ## 📚 Documentation
 
-- **[Backend README](backend/README.md)** - Complete API documentation
-- **[OpenAPI Spec](docs/openapi.yaml)** - API specification
-- **[Database Migrations](backend/src/main/resources/db/migration/)** - SQL schemas
+- **[QUICKSTART.md](QUICKSTART.md)** - Detailed setup guide
+- **[STARTUP-CHECKLIST.md](STARTUP-CHECKLIST.md)** - Step-by-step startup
+- **[FRONTEND_BACKEND_INTEGRATION.md](FRONTEND_BACKEND_INTEGRATION.md)** - API integration guide
+- **[backend/README.md](backend/README.md)** - Backend-specific documentation
+- **[docs/openapi.yaml](docs/openapi.yaml)** - API specification
 
-## 🎯 Features
+## 🧪 Development Workflow
 
-### ✅ EPIC 1 — API Spec & Guardrails
-- Complete OpenAPI 3.0 specification
-- Swagger UI for interactive API testing
-- Problem+JSON error responses (RFC 7807)
-- Size limits: 200MB default, 500MB for MP4 (feature flag)
-- MIME type validation
-
-### ✅ EPIC 2 — Database & Search
-- PostgreSQL with Flyway migrations
-- Full-text search using `tsvector` + GIN indexes
-- Testcontainers integration tests
-- Search ranking with `ts_rank`
-
-### ✅ EPIC 3 — Async Ingest & Idempotency
-- Async operations with status tracking (PENDING/RUNNING/SUCCEEDED/FAILED)
-- In-database queue worker
-- Idempotency via `Idempotency-Key` header (24h TTL)
-- Warning aggregation (e.g., VERSION_CONFLICT)
-
-### ✅ EPIC 4 — Multi-Cloud Storage Providers
-- Pluggable storage provider abstraction
-- Azure Blob Storage with SAS tokens (default)
-- AWS S3 with SigV4 presigning
-- Google Cloud Storage with V4 signed URLs
-- Upload finalization with SHA256 + size verification
-
-### ✅ EPIC 5 — Backend Controllers & Services
-- REST endpoints: `/v1/ingest`, `/v1/operations`, `/v1/search`, `/v1/artifacts`, `/v1/tests`
-- ETag support with optimistic locking (returns 412 on stale updates)
-- CORS configuration
-- Request validation
-
-## 🔌 API Endpoints
-
-### Ingest Flow
-```bash
-POST /v1/ingest
-GET  /v1/operations/{id}
-```
-
-### Storage Flow
-```bash
-POST /v1/artifacts/presign
-POST /v1/artifacts/finalize
-```
-
-### Search
-```bash
-GET  /v1/search?q={query}&limit=20&offset=0
-```
-
-### CRUD
-```bash
-GET    /v1/tests
-GET    /v1/tests/{id}
-PUT    /v1/tests/{id}
-DELETE /v1/tests/{id}
-```
-
-## 🧪 Testing
+### Working on Frontend Only
 
 ```bash
-# Backend integration tests (with Testcontainers)
-cd backend
-mvn test
-
-# Frontend development
+# Start frontend with mock data (backend optional)
+cd frontend
 npm run dev
+```
 
-# Build frontend for production
+Frontend works offline with mock data if backend is unavailable.
+
+### Working on Backend Only
+
+```bash
+# Start backend services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f backend
+
+# Access Swagger UI
+open http://localhost:8080/swagger-ui.html
+```
+
+### Full-Stack Development
+
+```bash
+# Terminal 1: Backend
+docker-compose up -d
+
+# Terminal 2: Frontend
+cd frontend
+npm run dev
+```
+
+## 🗄️ Database
+
+PostgreSQL runs in Docker:
+
+```bash
+# Access database
+docker exec -it devhunter-postgres psql -U devhunter -d devhunter
+
+# View tables
+\dt
+
+# Check migrations
+SELECT * FROM flyway_schema_history;
+```
+
+## 🧹 Cleanup
+
+```bash
+# Clean all build artifacts
+npm run clean
+
+# Stop and remove all Docker containers
+docker-compose down -v
+
+# Remove all dependencies (fresh start)
+rm -rf frontend/node_modules backend/target
+npm run install:all
+```
+
+## 🚢 Deployment
+
+### Frontend
+
+```bash
+cd frontend
 npm run build
+
+# Output: frontend/dist/
+# Deploy to: Netlify, Vercel, S3, CDN, etc.
 ```
 
-## 📊 Tech Stack
+### Backend
 
-**Frontend:**
-- React 19
-- TypeScript
-- Vite
-- Google Gemini AI
-- React Markdown
-
-**Backend:**
-- Java 21
-- Spring Boot 3.2
-- PostgreSQL 15
-- Flyway (migrations)
-- Azure Storage / AWS S3 / Google Cloud Storage
-- Testcontainers (testing)
-
-## 🔒 Security Features
-
-- Idempotency keys for duplicate prevention
-- Optimistic locking with ETags
-- Size and MIME type validation
-- Problem+JSON error responses
-- CORS configuration
-- Phase-2 auth placeholders (documented, not enforced)
-
-## 🗄️ Database Schema
-
-Core tables:
-- `tests` - Test definitions with full-text search
-- `runs` - Test execution runs
-- `artifacts` - Uploaded files/results
-- `operations` - Async operation tracking
-- `idempotency` - Request deduplication (24h TTL)
-
-## 🛠️ Configuration
-
-**Backend** (`backend/.env`):
 ```bash
-DATABASE_URL=jdbc:postgresql://localhost:5432/devhunter
-STORAGE_PROVIDER=azure  # or aws, gcs
-AZURE_STORAGE_CONNECTION_STRING=...
-FEATURE_FLAG_ENABLE_MP4_UPLOADS=false
+# Build Docker image
+docker build -t devhunter-backend ./backend
+
+# Or build with Maven
+cd backend
+mvn clean package
+
+# Output: backend/target/ingest-service-1.0.0-SNAPSHOT.jar
 ```
-
-**Frontend** (`.env.local`):
-```bash
-VITE_GEMINI_API_KEY=your-gemini-api-key
-VITE_API_BASE_URL=http://localhost:8080/v1
-```
-
-## 📖 Project Structure
-
-```
-.
-├── backend/                    # Java Spring Boot API
-│   ├── src/main/java/
-│   │   └── com/devhunter/ingest/
-│   │       ├── controller/     # REST endpoints
-│   │       ├── service/        # Business logic
-│   │       ├── repository/     # Database access
-│   │       ├── domain/         # JPA entities
-│   │       └── storage/        # Multi-cloud providers
-│   ├── src/main/resources/
-│   │   └── db/migration/       # Flyway SQL migrations
-│   └── src/test/               # Integration tests
-├── components/                 # React components
-├── services/                   # Frontend services
-├── docs/                       # OpenAPI specification
-├── docker-compose.yml          # Container orchestration
-└── package.json               # Frontend dependencies
-```
-
-## 🌐 Frontend Connection
-
-Update your frontend to connect to the backend:
-
-```typescript
-// In your service files
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/v1';
-
-// Example: Start ingest
-const response = await fetch(`${API_BASE_URL}/ingest`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Idempotency-Key': crypto.randomUUID()
-  },
-  body: JSON.stringify(ingestRequest)
-});
-
-const operation = await response.json();
-const locationHeader = response.headers.get('Location');
-```
-
-## 📈 Monitoring
-
-Spring Boot Actuator endpoints:
-- `GET /actuator/health` - Health check
-- `GET /actuator/metrics` - Application metrics
-- `GET /actuator/info` - Build information
 
 ## 🤝 Contributing
 
-1. Check the OpenAPI spec for API contracts
-2. Run integration tests before committing
-3. Follow the existing code structure
-4. Update documentation for new features
+1. Frontend changes: Work in `frontend/` directory
+2. Backend changes: Work in `backend/` directory
+3. Keep dependencies isolated
+4. Update relevant README files
+5. Test both packages before committing
 
-## 🐛 Troubleshooting
+## 📊 Project Status
 
-**Backend won't start:**
-```bash
-# Check PostgreSQL is running
-docker ps | grep postgres
+### Completed Features
 
-# Check logs
-docker-compose logs backend
-```
+✅ Frontend-Backend Integration  
+✅ Dexie Local Storage  
+✅ Dashboard with Stats  
+✅ Search Functionality  
+✅ AI Agents (Gemini)  
+✅ Multi-cloud Storage  
+✅ Full-text Search  
+✅ Async Ingest  
+✅ Idempotency  
+✅ OpenAPI Documentation  
 
-**Frontend can't connect to backend:**
-```bash
-# Verify CORS settings in backend/src/main/resources/application.yml
-# Check VITE_API_BASE_URL in .env.local
-```
+## 📞 Support
 
-**Tests fail:**
-```bash
-# Ensure Docker is running (required for Testcontainers)
-docker info
-```
-
-## 📝 License
-
-Proprietary - Dev Hunter Inc.
+- **Issues**: GitHub Issues
+- **Docs**: See `/docs` directory
+- **API**: http://localhost:8080/swagger-ui.html
 
 ---
 
-**View your app in AI Studio:** https://ai.studio/apps/drive/1dn8I1T7G7MF68jqzdyj4n6wOCdlzOoRr
+**Note**: After reorganizing, run `npm install` from the root to set up the workspace structure.
+

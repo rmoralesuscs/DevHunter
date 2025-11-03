@@ -49,25 +49,25 @@ A comprehensive Java Spring Boot service implementing async ingest, full-text se
 ### Using Docker Compose (Recommended)
 
 1. **Configure environment:**
-   ```bash
+    bash
    cp backend/.env.example backend/.env
    # Edit .env with your storage credentials
-   ```
+    
 
 2. **Start services:**
-   ```bash
+    bash
    docker-compose up -d
-   ```
+    
 
 3. **Access Swagger UI:**
-   ```
+    
    http://localhost:8080/swagger-ui.html
-   ```
+    
 
 ### Local Development
 
 1. **Start PostgreSQL:**
-   ```bash
+    bash
    docker run -d \
      --name devhunter-postgres \
      -e POSTGRES_DB=devhunter \
@@ -75,30 +75,30 @@ A comprehensive Java Spring Boot service implementing async ingest, full-text se
      -e POSTGRES_PASSWORD=devhunter \
      -p 5432:5432 \
      postgres:15-alpine
-   ```
+    
 
 2. **Configure application:**
-   ```bash
+    bash
    cd backend
    cp .env.example .env
    # Edit .env with your configuration
-   ```
+    
 
 3. **Run application:**
-   ```bash
+    bash
    cd backend
    mvn spring-boot:run
-   ```
+    
 
 4. **Run tests:**
-   ```bash
+    bash
    mvn test
-   ```
+    
 
 ## 📖 API Endpoints
 
 ### Ingest Flow
-```bash
+ bash
 # 1. Start async ingest
 curl -X POST http://localhost:8080/v1/ingest \
   -H "Content-Type: application/json" \
@@ -118,10 +118,10 @@ curl -X POST http://localhost:8080/v1/ingest \
 
 # 2. Check operation status
 curl http://localhost:8080/v1/operations/{operation_id}
-```
+ 
 
 ### Storage Flow
-```bash
+ bash
 # 1. Request presigned URL
 curl -X POST http://localhost:8080/v1/artifacts/presign \
   -H "Content-Type: application/json" \
@@ -146,16 +146,16 @@ curl -X POST http://localhost:8080/v1/artifacts/finalize \
     "size_bytes": 102400,
     "sha256": "{sha256_hash}"
   }'
-```
+ 
 
 ### Search
-```bash
+ bash
 # Full-text search
 curl "http://localhost:8080/v1/search?q=integration&limit=20&offset=0"
-```
+ 
 
 ### CRUD with ETag
-```bash
+ bash
 # Get with ETag
 curl -i http://localhost:8080/v1/tests/{test_id}
 # Returns: ETag: "1"
@@ -165,7 +165,7 @@ curl -X PUT http://localhost:8080/v1/tests/{test_id} \
   -H "If-Match: \"1\"" \
   -H "Content-Type: application/json" \
   -d '{"name": "Updated Test"}'
-```
+ 
 
 ## 🗄️ Database Schema
 
@@ -178,16 +178,16 @@ Flyway migrations handle:
 ## 🧪 Testing
 
 ### Integration Tests (Testcontainers)
-```bash
+ bash
 mvn test
-```
+ 
 
 Tests include:
 - `IngestIntegrationTest`: Async ingest flow, idempotency, validation
 - `SearchIntegrationTest`: Full-text search, ranking, index verification
 
 ### Manual Testing
-```bash
+ bash
 # Health check
 curl http://localhost:8080/actuator/health
 
@@ -196,7 +196,7 @@ curl http://localhost:8080/api-docs
 
 # Swagger UI
 open http://localhost:8080/swagger-ui.html
-```
+ 
 
 ## 🔒 Security & Guardrails
 
@@ -212,7 +212,7 @@ open http://localhost:8080/swagger-ui.html
 
 Key environment variables:
 
-```bash
+ bash
 # Database
 DATABASE_URL=jdbc:postgresql://localhost:5432/devhunter
 
@@ -233,11 +233,11 @@ GCS_BUCKET_NAME=devhunter-artifacts
 
 # Feature flags
 FEATURE_FLAG_ENABLE_MP4_UPLOADS=false
-```
+ 
 
 ## 📦 Project Structure
 
-```
+ 
 backend/
 ├── src/main/java/com/devhunter/ingest/
 │   ├── config/           # CORS, async config
@@ -252,7 +252,7 @@ backend/
 │   ├── db/migration/     # Flyway SQL scripts
 │   └── application.yml   # Configuration
 └── src/test/java/        # Integration tests
-```
+ 
 
 ## 🔄 Frontend Integration
 
@@ -265,7 +265,7 @@ Frontend can connect by:
 5. Support ETag for updates
 
 Example TypeScript fetch:
-```typescript
+ typescript
 const response = await fetch('http://localhost:8080/v1/ingest', {
   method: 'POST',
   headers: {
@@ -280,7 +280,7 @@ if (response.status === 202) {
   const location = response.headers.get('Location');
   // Poll location for status
 }
-```
+ 
 
 ## 📊 Monitoring
 
@@ -292,25 +292,25 @@ Actuator endpoints:
 ## 🐛 Troubleshooting
 
 **Database connection fails:**
-```bash
+ bash
 # Check PostgreSQL is running
 docker ps | grep postgres
 # Check connection
 psql -h localhost -U devhunter -d devhunter
-```
+ 
 
 **Storage provider errors:**
-```bash
+ bash
 # Verify credentials in .env
 # Check provider is set correctly
 echo $STORAGE_PROVIDER
-```
+ 
 
 **Tests fail:**
-```bash
+ bash
 # Ensure Docker is running (Testcontainers)
 docker info
-```
+ 
 
 ## 📝 License
 
